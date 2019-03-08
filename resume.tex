@@ -1,0 +1,65 @@
+
+\documentclass[a4]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{fullpage}
+\usepackage[hidelinks]{hyperref}
+
+\newcommand{\sophos}{{\Sigma o\phi o\varsigma}}
+\newcommand{\diana}{\ensuremath{\mathsf{Diana}}}
+\newcommand{\janus}{\ensuremath{\mathsf{Janus}}}
+
+\pagenumbering{gobble}
+
+\begin{document}
+
+% \title{Algorithmes de recherche sur bases de données chiffrées}
+% \author{Raphael BOST}
+% \date{}
+
+\begin{center}
+    {\LARGE Algorithmes de recherche sur bases de données chiffrées}
+    \vspace{1em}
+
+    {\large Raphael BOST}
+\end{center}
+
+% \maketitle
+
+
+
+
+Avec le développement de législations contraignantes et des craintes de leurs utilisateurs finaux, la sécurité des bases de données est devenu un sujet critique pour beaucoup de services en lignes.
+% Si un certain nombre de techniques peuvent être mises en \oe uvre pour sécuriser ces bases de données (gestion des accès, contrôle et aseptisation des requêtes, confidentialité différentielle, \dots),
+Parmi les solutions de sécurisation de ces bases de données, seul le chiffrement des données et des requêtes permet à un utilisateur de s'assurer de la confidentialité de celles-ci vis-à-vis du serveur hébergeant la base.
+%
+Malheureusement, le chiffrement `classique' ne permet pas de répondre à cette problématique efficacement (cela nécessite que le client télécharge et déchiffre la base de donnée à chaque requête), et des techniques plus évoluées, telles que le chiffrement homomorphe ou le calcul multipartite sécurisé, ont une complexité calculatoire minimale pour la résolution d'une requête qui empêche leur utilisation en pratique (linéaire en la taille de la base de donnée, au lieu de linéaire en le nombre de résultat pour une base non-chiffrée).
+Le chiffrement interrogeable (\emph{searchable encryption}) %en Anglais
+répond à cette problématique en proposant des compromis entre sécurité et efficacité.
+
+Mes travaux dans ce domaine peuvent être regroupés selon trois axes : un axe pratique visant à construire des schémas avec des propriétés de sécurités essentielles qui soient efficaces, un axe expérimental visant à implémenter ces constructions et montrer leurs performances pratiques, et enfin un axe théorique visant à formaliser les compromis sécurité/performance et les attaques génériques contre ces systèmes.
+
+% La majorité des travaux que j'ai effectués durant mon doctorat porte sur le chiffrement interrogeable (searchable encryption en Anglais), c'est-à-dire le chiffrement d'un ensemble de document permettant la recherche par mots-clès.
+
+Une des principales contribution est ainsi le développement de $\sophos$ (Sophos), le premier schéma efficace ayant la propriété de confidentialité persistante (\emph{forward privacy}).
+Cette propriété, qui consiste à cacher le contenu d'une mise à jour de la base, est primordiale pour les bases de données chiffrées supportant l'insertion de nouvelles données : il existe des attaques très efficaces permettant des déchiffrer les requêtes passées exploitant les informations révélées par les mises à jour de la base.
+Ce travail, effectué en complète autonomie, a donné lieu à une publication à CCS en 2016 qui est systématiquement citée dans les travaux traitant de chiffrement interrogeable dynamique (c'est-à-dire supportant les mises-à-jour), pour lesquels la propriété de confidentialité persistante est devenue un standard \emph{de facto}.
+L'année suivante, avec Brice Minaud et Olga Ohrimenko, nous avons proposé une généralisation de $\sophos$ basée sur les fonctions pseudo-aléatoires contraintes, et une instantiation particulièrement efficace, $\diana$.
+Dans ce papier, nous avons aussi défini la notion de confidentialité future (\emph{backward privacy}), qui consiste à s'assurer qu'aucune information concernant les documents supprimés par l'utilisateur n'est révélée au serveur, et construit les premiers schémas, par ailleurs asymptotiquement efficaces, satisfaisant cette propriété.
+Ainsi, une de ces constructions, $\janus$, utilise 
+% une primitive cryptographique originale, 
+le chiffrement poinçonnable (\emph{puncturable encryption}), pour s'assurer cryptographiquement de l'impossibilité pour le serveur de déchiffrer les résultats supprimés de la base de donnée.
+Ce papier a initié les travaux d'autres chercheurs, publiés en 2018, proposant de nouvelles primitives de chiffrement poinçonnable et de nouvelles constructions assurant la confidentialité future des données chiffrées.
+
+
+J'ai implementé ces schémas en C++ afin de démontrer leur praticité : ainsi, $\diana$ est capable de chiffrer une base correspondant à vingt fois le Wikipédia anglophone, tout en étant capable de retrouver chaque résultat en 50 $\mu s$ sur un ordinateur de bureau.
+Le travail d'implémentation de ces schémas, toujours actif et disponible en Open Source (\url{https://opensse.github.io}), va au-delà de celui d'une implémentation de référence, utilisée comme point de comparaison pour les travaux subséquents.
+L'objectif est, en effet, de fournir une implémentation ayant un niveau de sécurité et de maturité suffisant pour être utilisée en production~: j'ai ainsi été contacté par des entreprises souhaitant réutiliser certaines parties pour leurs développement de base de données sécurisée.
+Un effort particulier a donc été effectué sur la qualité et la robustesse de l'implémentation, tout particulièrement pour les primitives cryptographiques utilisées.
+
+Enfin, d'un point de vue théorique, j'ai étudié formellement les compromis entre, d'une part, les propriétés de sécurité de ces schémas de chiffrement interrogeable et, d'autre part, leur efficacité asymptotique.
+J'ai notamment pu montrer que, parmi les construction assurant la confidentialité persistante, $\sophos$ était optimale.
+Dans un article encore en cours de soumission, j'ai aussi expliqué l'existence d'attaques génériques, utilisant les informations fuitant du schéma (fuite qui est prise en compte dans le modèle de sécurité), proposé une méthode pour contrer de telles attaques et appliqué cette contre-mesure à des schémas existants (dont $\sophos$ et $\diana$).
+Ces deux points contribuent ainsi à une meilleure compréhension de la sécurité réelle fournie par les constructions de chiffrement interrogeable.
+
+\end{document}
